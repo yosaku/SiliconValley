@@ -46,7 +46,7 @@ int notrace unwind_frame(struct stackframe *frame)
 void notrace walk_stackframe(struct stackframe *frame,
 		     int (*fn)(struct stackframe *, void *), void *data)
 {
-	while (1) {
+/*	while (1) {
 		int ret;
 
 		if (fn(frame, data))
@@ -54,7 +54,7 @@ void notrace walk_stackframe(struct stackframe *frame,
 		ret = unwind_frame(frame);
 		if (ret < 0)
 			break;
-	}
+	} */
 }
 EXPORT_SYMBOL(walk_stackframe);
 

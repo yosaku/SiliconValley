@@ -50,7 +50,7 @@ EXPORT_SYMBOL(rtc_lock);
 #ifdef CONFIG_SMP
 unsigned long profile_pc(struct pt_regs *regs)
 {
-	struct stackframe frame;
+/*	struct stackframe frame;
 
 	if (!in_lock_functions(regs->ARM_pc))
 		return regs->ARM_pc;
@@ -64,8 +64,8 @@ unsigned long profile_pc(struct pt_regs *regs)
 		if (ret < 0)
 			return 0;
 	} while (in_lock_functions(frame.pc));
-
-	return frame.pc;
+*/
+	return 0;
 }
 EXPORT_SYMBOL(profile_pc);
 #endif
