@@ -13,6 +13,8 @@
 #ifndef __KGSL_LOG_H
 #define __KGSL_LOG_H
 
+#if 0
+
 #define KGSL_LOG_INFO(dev, lvl, fmt, args...) \
 	do { \
 		if ((lvl) >= 6)  \
@@ -106,5 +108,66 @@ KGSL_LOG_CRIT(_dev->dev, _dev->pwr_log, fmt, ##args)
 
 #define KGSL_CORE_ERR(fmt, args...) \
 pr_err("kgsl: %s: " fmt, __func__, ##args)
+
+#else
+
+#define KGSL_LOG_INFO(dev, lvl, fmt, args...) \
+	do { } while (0)
+#define KGSL_LOG_WARN(dev, lvl, fmt, args...) \
+	do { } while (0)
+#define KGSL_LOG_ERR(dev, lvl, fmt, args...) \
+	do { } while (0)
+#define KGSL_LOG_CRIT(dev, lvl, fmt, args...) \
+	do { } while (0)
+#define KGSL_LOG_POSTMORTEM_WRITE(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_LOG_DUMP(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_DEV_ERR_ONCE(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_DRV_INFO(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_DRV_WARN(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_DRV_ERR(_dev, fmt, args...)  \
+	do { } while (0)
+#define KGSL_DRV_CRIT(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_CMD_INFO(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_CMD_WARN(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_CMD_ERR(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_CMD_CRIT(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_CTXT_INFO(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_CTXT_WARN(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_CTXT_ERR(_dev, fmt, args...)  \
+	do { } while (0)
+#define KGSL_CTXT_CRIT(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_MEM_INFO(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_MEM_WARN(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_MEM_ERR(_dev, fmt, args...)  \
+	do { } while (0)
+#define KGSL_MEM_CRIT(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_PWR_INFO(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_PWR_WARN(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_PWR_ERR(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_PWR_CRIT(_dev, fmt, args...) \
+	do { } while (0)
+#define KGSL_CORE_ERR(fmt, args...) \
+	do { } while (0)
+
+#endif
 
 #endif /* __KGSL_LOG_H */
