@@ -52,7 +52,7 @@
 #define SHIFT_BITS 10
 #define SYN_WIRELESS_DEBUG
 
-#define MAX_PRESSURE 255
+#define MAX_PRESSURE 65535
 #define MAX_WIDTH 30
 
 #define SYN_FW_NAME "tp_SYN.img"
