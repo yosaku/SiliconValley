@@ -60,13 +60,21 @@
 
 #define PM8XXX_LPG_CTL_REGS		7
 
+//#define LED_DEBUG
+#undef LED_DEBUG
+
+#ifndef LED_DEBUG
 #define LED_DBG(fmt, ...) \
 		({ if (0) printk(KERN_DEBUG "[LED]" fmt, ##__VA_ARGS__); })
 #define LED_INFO(fmt, ...) \
 		printk(KERN_INFO "[LED]" fmt, ##__VA_ARGS__)
 #define LED_ERR(fmt, ...) \
 		printk(KERN_ERR "[LED][ERR]" fmt, ##__VA_ARGS__)
-
+#else
+#define LED_DBG(fmt, ...)
+#define LED_INFO(fmt, ...)
+#define LED_ERR(fmt, ...)
+#endif
 static struct workqueue_struct *g_led_work_queue;
 static struct workqueue_struct *g_led_on_work_queue;
 struct wake_lock pmic_led_wake_lock;
