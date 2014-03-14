@@ -1901,17 +1901,9 @@ static void __cpuinit rcu_prepare_kthreads(int cpu)
 
 #if !defined(CONFIG_RCU_FAST_NO_HZ)
 
-/*
- * Check to see if any future RCU-related work will need to be done
- * by the current CPU, even if none need be done immediately, returning
- * 1 if so.  This function is part of the RCU implementation; it is -not-
- * an exported member of the RCU API.
- *
- * Because we not have RCU_FAST_NO_HZ, just check whether this CPU needs
- * any flavor of RCU.
- */
-int rcu_needs_cpu(int cpu)
+int rcu_needs_cpu(int cpu, unsigned long *delta_jiffies)
 {
+	*delta_jiffies = ULONG_MAX;
 	return rcu_cpu_has_callbacks(cpu);
 }
 
@@ -1984,22 +1976,25 @@ static DEFINE_PER_CPU(struct hrtimer, rcu_idle_gp_timer);
 static ktime_t rcu_idle_gp_wait;	/* If some non-lazy callbacks. */
 static ktime_t rcu_idle_lazy_gp_wait;	/* If only lazy callbacks. */
 
-/*
- * Allow the CPU to enter dyntick-idle mode if either: (1) There are no
- * callbacks on this CPU, (2) this CPU has not yet attempted to enter
- * dyntick-idle mode, or (3) this CPU is in the process of attempting to
- * enter dyntick-idle mode.  Otherwise, if we have recently tried and failed
- * to enter dyntick-idle mode, we refuse to try to enter it.  After all,
- * it is better to incur scheduling-clock interrupts than to spin
- * continuously for the same time duration!
- */
-int rcu_needs_cpu(int cpu)
+static bool rcu_cpu_has_nonlazy_callbacks(int cpu);
+int rcu_needs_cpu(int cpu, unsigned long *delta_jiffies)
 {
 	/* If no callbacks, RCU doesn't need the CPU. */
-	if (!rcu_cpu_has_callbacks(cpu))
+	if (!rcu_cpu_has_callbacks(cpu)) {
+		*delta_jiffies = ULONG_MAX;
 		return 0;
-	/* Otherwise, RCU needs the CPU only if it recently tried and failed. */
-	return per_cpu(rcu_dyntick_holdoff, cpu) == jiffies;
+	}
+	if (per_cpu(rcu_dyntick_holdoff, cpu) == jiffies) {
+		/* RCU recently tried and failed, so don't try again. */
+		*delta_jiffies = 1;
+		return 1;
+	}
+	/* Set up for the possibility that RCU will post a timer. */
+	if (rcu_cpu_has_nonlazy_callbacks(cpu))
+		*delta_jiffies = RCU_IDLE_GP_DELAY;
+	else
+		*delta_jiffies = RCU_IDLE_LAZY_GP_DELAY;
+	return 0;
 }
 
 /*
