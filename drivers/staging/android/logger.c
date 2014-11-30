@@ -29,7 +29,7 @@
 
 #include <asm/ioctls.h>
 
-static unsigned int log_enabled = 1;
+static unsigned int log_enabled = 0;
 module_param(log_enabled, uint, S_IWUSR | S_IRUGO);
 
 /*
