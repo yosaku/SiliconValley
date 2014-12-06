@@ -2565,6 +2565,14 @@ config MSM_VP_REGULATOR
 	  Enable MSM PMIC8029 C2 regulator support using APC_PLEVEL access
 	  for MSMs like 8625.
 
+config MSM_HOTPLUG
+	bool "MSM hotplug driver"
+	depends on HOTPLUG_CPU
+	default y
+	help
+	  The MSM hotplug driver controls on-/offlining of additional cores based
+	  on current cpu load.
+
 config HAVE_ARCH_HAS_CURRENT_TIMER
 	bool
 
