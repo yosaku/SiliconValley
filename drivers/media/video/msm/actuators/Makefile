@@ -1,4 +1,5 @@
 GCC_VERSION      := $(shell $(CONFIG_SHELL) $(PWD)/scripts/gcc-version.sh $(CROSS_COMPILE)gcc)
+ccflags-y := -Wno-maybe-uninitialized
 EXTRA_CFLAGS += -Idrivers/media/video/msm
 EXTRA_CFLAGS += -Idrivers/media/video/msm/io
 EXTRA_CFLAGS += -Idrivers/media/video/msm/sensors
