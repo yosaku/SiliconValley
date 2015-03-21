@@ -1301,12 +1301,6 @@ static int __init msm_pm_init(void)
 				msm_cpu_status_driver.driver.name);
 		return rc;
 	}
-
-	if (msm_pm_pc_reset_timer) {
-		on_each_cpu(setup_broadcast_timer, NULL, 1);
-		register_cpu_notifier(&setup_broadcast_notifier);
-	}
-
 	return 0;
 }
 late_initcall(msm_pm_init);
