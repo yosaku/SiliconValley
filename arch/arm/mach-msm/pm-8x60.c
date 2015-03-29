@@ -737,6 +737,16 @@ static inline void msm_pm_ftrace_lpm_exit(unsigned int cpu,
 	}
 }
 
+static inline uint32_t clamp_ktime_us(ktime_t kt)
+{
+	s64 time = ktime_to_us(kt);
+	if (time < 0)
+		time = 0;
+	else if (time > INT_MAX)
+		time = INT_MAX;
+	return time;
+}
+
 static int msm_pm_idle_prepare(struct cpuidle_device *dev,
 		struct cpuidle_driver *drv, int index,
 		void **msm_pm_idle_rs_limits)
@@ -746,26 +756,27 @@ static int msm_pm_idle_prepare(struct cpuidle_device *dev,
 	int ret = MSM_PM_SLEEP_MODE_NOT_SELECTED;
 	uint32_t modified_time_us = 0;
 	struct msm_pm_time_params time_param;
+	int other_cpus;
 
 	time_param.latency_us =
-		(uint32_t) pm_qos_request(PM_QOS_CPU_DMA_LATENCY);
-	time_param.sleep_us =
-		(uint32_t) (ktime_to_us(tick_nohz_get_sleep_length())
-								& UINT_MAX);
+		(uint32_t)pm_qos_request(PM_QOS_CPU_DMA_LATENCY);
+	if (dev->est_residency == -1)
+		time_param.sleep_us =
+			clamp_ktime_us(tick_nohz_get_sleep_length());
+	else
+		time_param.sleep_us = dev->est_residency;
 	time_param.modified_time_us = 0;
 
 	if (!dev->cpu)
-		time_param.next_event_us =
-			(uint32_t) (ktime_to_us(get_next_event_time())
-								& UINT_MAX);
+		time_param.next_event_us = clamp_ktime_us(get_next_event_time());
 	else
 		time_param.next_event_us = 0;
 
-	for (i = 0; i < dev->state_count; i++) {
-		struct cpuidle_state *state = &drv->states[i];
+	other_cpus = num_online_cpus() > 1 || cpu_maps_is_updating();
+
+	for (i = CPUIDLE_DRIVER_STATE_START; i <= index; i++) {
 		struct cpuidle_state_usage *st_usage = &dev->states_usage[i];
 		enum msm_pm_sleep_mode mode;
-		bool allow;
 		uint32_t power;
 		int idx;
 		void *rs_limits = NULL;
@@ -773,46 +784,16 @@ static int msm_pm_idle_prepare(struct cpuidle_device *dev,
 		mode = (enum msm_pm_sleep_mode) cpuidle_get_statedata(st_usage);
 		idx = MSM_PM_MODE(dev->cpu, mode);
 
-		allow = msm_pm_sleep_modes[idx].idle_enabled &&
-				msm_pm_sleep_modes[idx].idle_supported;
-
-		switch (mode) {
-		case MSM_PM_SLEEP_MODE_POWER_COLLAPSE:
-			if (num_online_cpus() > 1 || cpu_maps_is_updating())
-				allow = false;
-			break;
-		case MSM_PM_SLEEP_MODE_RETENTION:
-			/*
-			 * The Krait BHS regulator doesn't have enough head
-			 * room to drive the retention voltage on LDO and so
-			 * has disabled retention
-			 */
-			if (!msm_pm_ldo_retention_enabled)
-				allow = false;
-
-			if (msm_pm_retention_calls_tz && num_online_cpus() > 1)
-				allow = false;
-			break;
-		case MSM_PM_SLEEP_MODE_POWER_COLLAPSE_STANDALONE:
-		case MSM_PM_SLEEP_MODE_WAIT_FOR_INTERRUPT:
-			break;
-		default:
-			allow = false;
-			break;
-		}
-
-		if (!allow)
+		if (!msm_pm_sleep_modes[idx].idle_supported)
+			continue;
+		if (mode == MSM_PM_SLEEP_MODE_POWER_COLLAPSE && other_cpus)
+			continue;
+		if (mode == MSM_PM_SLEEP_MODE_RETENTION && other_cpus)
 			continue;
 
 		if (pm_sleep_ops.lowest_limits)
 			rs_limits = pm_sleep_ops.lowest_limits(true,
-					mode, &time_param, &power);
-
-		if (MSM_PM_DEBUG_IDLE & msm_pm_debug_mask)
-			pr_info("CPU%u:%s:%s, latency %uus, slp %uus, lim %p\n",
-					dev->cpu, __func__, state->desc,
-					time_param.latency_us,
-					time_param.sleep_us, rs_limits);
+				mode, &time_param, &power);
 		if (!rs_limits)
 			continue;
 
@@ -820,9 +801,10 @@ static int msm_pm_idle_prepare(struct cpuidle_device *dev,
 			power_usage = power;
 			modified_time_us = time_param.modified_time_us;
 			ret = mode;
-			*msm_pm_idle_rs_limits = rs_limits;
 		}
 
+		if (mode == MSM_PM_SLEEP_MODE_POWER_COLLAPSE)
+			msm_pm_idle_rs_limits = rs_limits;
 	}
 
 	if (modified_time_us && !dev->cpu)
