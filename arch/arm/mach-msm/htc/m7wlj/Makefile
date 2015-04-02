@@ -1,0 +1,15 @@
+obj-$(CONFIG_MACH_M7_WLJ) += board-m7wlj.o
+obj-$(CONFIG_MACH_M7_WLJ) += board-m7wlj-regulator.o
+obj-$(CONFIG_MACH_M7_WLJ) += board-m7wlj-gpiomux.o
+obj-$(CONFIG_MACH_M7_WLJ) += board-m7wlj-storage.o
+obj-$(CONFIG_MACH_M7_WLJ) += board-m7wlj-audio.o
+obj-$(CONFIG_MACH_M7_WLJ) += board-m7wlj-pmic.o
+obj-$(CONFIG_MACH_M7_WLJ) += board-m7wlj-keypad.o
+obj-$(CONFIG_MACH_M7_WLJ) += board-m7wlj-camera.o
+obj-$(CONFIG_MACH_M7_WLJ) += board-m7wl-gpu.o
+obj-$(CONFIG_MACH_M7_WLJ) += board-m7wl-rfkill.o
+obj-$(CONFIG_MACH_M7_WLJ) += board-m7wl-wifi.o
+obj-$(CONFIG_MACH_M7_WLJ) += display/
+obj-$(CONFIG_MACH_M7_WLJ) += ADP5585_ioextender.o
+CFLAGS_board-m7wl-display.o += -Idrivers/video
+CFLAGS_board-m7wlj-audio.o += -Isound/soc/msm
