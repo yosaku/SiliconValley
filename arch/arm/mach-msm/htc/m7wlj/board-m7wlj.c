@@ -184,14 +184,7 @@ struct pm8xxx_gpio_init {
 #define MSM_MM_FW_SIZE		(0x200000 - HOLE_SIZE)
 #define APQ8064_FW_START	APQ8064_FIXED_AREA_START
 #define MSM_ION_ADSP_SIZE	SZ_8M
-
-#if defined (CONFIG_FELICA_DD) || defined (CONFIG_FELICA_CXD2235_DD)
-#include <linux/platform_device.h>
-#include <linux/felica_cxd2235.h>
-#endif
-
 #define MSM8064_GSBI2_QUP_I2C_BUS_ID 2
-
 #ifdef CONFIG_KERNEL_MSM_CONTIG_MEM_REGION
 static unsigned msm_contig_mem_size = MSM_CONTIG_MEM_SIZE;
 static int __init msm_contig_mem_size_setup(char *p)
@@ -3217,170 +3210,6 @@ static void headset_device_register(void)
 	platform_device_register(&htc_headset_mgr);
 }
 
-#if defined (CONFIG_FELICA_DD) || defined (CONFIG_FELICA_CXD2235_DD)
-static void m7wl_j_felica_pon_gpio_func(int rwtype, int wvalue, int *rvalue)
-{
-	if (rwtype == GPIOWRITE) {
-
-		gpio_set_value(PM8921_GPIO_PM_TO_SYS(FEL_PON), wvalue);
-	}
-	else if (rwtype == GPIOREAD) {
-		*rvalue = gpio_get_value(PM8921_GPIO_PM_TO_SYS(FEL_PON));
-
-	}
-
-	return;
-}
-
-static void m7wl_j_felica_cen_dtyp_d_func(int rwtype, int wvalue, int *rvalue)
-{
-	if (rwtype == GPIOWRITE) {
-		gpio_set_value(PM8921_GPIO_PM_TO_SYS(FELICA_CEN), wvalue);
-	}
-	else if (rwtype == GPIOREAD) {
-		*rvalue = gpio_get_value(PM8921_GPIO_PM_TO_SYS(FELICA_CEN));
-	}
-
-	return;
-}
-
-static void m7wl_j_felica_cen_dtyp_cp_func(int rwtype, int wvalue, int *rvalue)
-{
-	if (rwtype == GPIOWRITE) {
-		gpio_set_value(PM8921_GPIO_PM_TO_SYS(FELICA_LOCK), wvalue);
-	}
-	else if (rwtype == GPIOREAD) {
-		*rvalue = gpio_get_value(PM8921_GPIO_PM_TO_SYS(FELICA_LOCK));
-	}
-
-	return;
-}
-
-static void m7wl_j_felica_cen_gpio_func(int rwtype, int wvalue, int *rvalue)
-{
-	if (rwtype == GPIOWRITE) {
-		printk(KERN_INFO "[FELICA_DD] %s set cen[%x]\n", __func__, wvalue);
-		gpio_set_value_cansleep(PM8921_GPIO_PM_TO_SYS(FELICA_LOCK), GPIO_VALUE_LOW);
-		gpio_set_value_cansleep(PM8921_GPIO_PM_TO_SYS(FELICA_CEN), wvalue);
-		msleep(1);
-		gpio_set_value_cansleep(PM8921_GPIO_PM_TO_SYS(FELICA_LOCK), GPIO_VALUE_HIGH);
-		msleep(1);
-		gpio_set_value_cansleep(PM8921_GPIO_PM_TO_SYS(FELICA_LOCK), GPIO_VALUE_LOW);
-		msleep(1);
-		gpio_set_value_cansleep(PM8921_GPIO_PM_TO_SYS(FELICA_CEN), GPIO_VALUE_LOW);
-	}
-	else if (rwtype == GPIOREAD) {
-		*rvalue = gpio_get_value(PM8921_GPIO_PM_TO_SYS(FEL_CEN))?  FELICA_CEN_LOCK : FELICA_CEN_UNLOCK;
-
-	}
-
-	return;
-}
-
-static void m7wl_j_felica_rfs_gpio_func(int rwtype, int wvalue, int *rvalue)
-{
-	if (rwtype == GPIOREAD) {
-		*rvalue = gpio_get_value(PM8921_GPIO_PM_TO_SYS(FEL_RFS));
-
-	}
-
-	return;
-}
-
-static void m7wl_j_felica_int_gpio_func(int rwtype, int wvalue, int *rvalue)
-{
-	if (rwtype == GPIOREAD) {
-		*rvalue = gpio_get_value(PM8921_GPIO_PM_TO_SYS(FEL_INT));
-		 printk(KERN_INFO "[FELICA_DD] %s int[%x]\n", __func__, *rvalue);
-	}
-
-	return;
-}
-
-static void m7wl_j_felica_con_gpio_func(int rwtype, int wvalue, int *rvalue)
-{
-	return;
-}
-
-static void m7wl_j_felica_hsel_gpio_func(int rwtype, int wvalue, int *rvalue)
-{
-	unsigned ret;
-
-	struct pm8xxx_mpp_config_data hsel_mpp = {
-		.type	= PM8XXX_MPP_TYPE_D_OUTPUT,
-		.level	= PM8921_MPP_DIG_LEVEL_S4,
-	};
-
-	if (rwtype == GPIOWRITE) {
-		if (wvalue) {
-
-			hsel_mpp.control = PM8XXX_MPP_DOUT_CTRL_HIGH;
-			ret = pm8xxx_mpp_config(PM8921_MPP_PM_TO_SYS(10),
-								&hsel_mpp);
-			if (ret < 0)
-				pr_err("%s:MPP8 configuration failed\n", __func__);
-		} else {
-
-			hsel_mpp.control = PM8XXX_MPP_DOUT_CTRL_LOW;
-			ret = pm8xxx_mpp_config(PM8921_MPP_PM_TO_SYS(10),
-								&hsel_mpp);
-			if (ret < 0)
-				pr_err("%s:MPP10 config failed\n", __func__);
-		}
-	}
-}
-
-static void m7wl_j_felica_suspend(void)
-{
-
-	return;
-}
-
-static void m7wl_j_felica_resume(void)
-{
-
-	return;
-}
-
-
-static void m7wl_j_felica_setup_gpio(void)
-{
-	return;
-}
-
-static struct felica_platform_data m7wl_j_felica_data = {
-	.int_irq = PM8921_GPIO_IRQ(PM8921_IRQ_BASE, FEL_INT),
-	.int_gpio = PM8921_GPIO_PM_TO_SYS(FEL_INT),
-	.intu_irq = PM8921_GPIO_IRQ(PM8921_IRQ_BASE, FEL_INTU),
-	.intu_gpio = PM8921_GPIO_PM_TO_SYS(FEL_INTU),
-	.setup_gpio = m7wl_j_felica_setup_gpio,
-	.sleep_gpio = m7wl_j_felica_suspend,
-	.wakeup_gpio = m7wl_j_felica_resume,
-	.pon_gpio_func = m7wl_j_felica_pon_gpio_func,
-	.cen_dtyp_d_func = m7wl_j_felica_cen_dtyp_d_func,
-	.cen_dtyp_cp_func = m7wl_j_felica_cen_dtyp_cp_func,
-	.cen_gpio_func = m7wl_j_felica_cen_gpio_func,
-	.rfs_gpio_func = m7wl_j_felica_rfs_gpio_func,
-	.int_gpio_func = m7wl_j_felica_int_gpio_func,
-	.con_gpio_func = m7wl_j_felica_con_gpio_func,
-	.hsel_gpio_func = m7wl_j_felica_hsel_gpio_func,
-};
-
-static struct platform_device m7wl_j_felica_device = {
-	.name = "felica",
-	.id = 0,
-	.dev		= {
-		.platform_data	= &m7wl_j_felica_data,
-	},
-};
-
-int __init m7wl_j_init_felica(void)
-{
-	printk(KERN_INFO "[FELICA_DD] %s\n", __func__);
-	return platform_device_register(&m7wl_j_felica_device);
-}
-#endif
-
 #ifdef CONFIG_HTC_BATT_8960
 static int critical_alarm_voltage_mv[] = {3000, 3100, 3200, 3400};
 
@@ -5347,9 +5176,6 @@ static void __init m7wl_common_init(void)
 		rc = sysfs_create_group(properties_kobj,
 				&syn_properties_attr_group);
 	}
-#endif
-#if defined (CONFIG_FELICA_DD) || defined (CONFIG_FELICA_CXD2235_DD)
-	m7wl_j_init_felica();
 #endif
 	m7wlj_receiver_init();
 	headset_device_register();
