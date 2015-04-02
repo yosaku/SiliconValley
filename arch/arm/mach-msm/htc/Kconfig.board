@@ -17,6 +17,10 @@ source "arch/arm/mach-msm/htc/ville/Kconfig"
 # M7
 source "arch/arm/mach-msm/htc/m7/Kconfig"
 
+
+# M7_WLJ
+source "arch/arm/mach-msm/htc/m7wlj/Kconfig"
+
 # T6
 source "arch/arm/mach-msm/htc/t6/Kconfig"
 
