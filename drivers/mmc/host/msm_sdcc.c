@@ -2868,6 +2868,9 @@ static u32 msmsdcc_setup_pins(struct msmsdcc_host *host, bool enable)
 {
 	int rc = 0;
 
+        if(host->plat->config_sdgpio)
+                return host->plat->config_sdgpio(enable);
+
 	if (!host->plat->pin_data || host->plat->pin_data->cfg_sts == enable)
 		return 0;
 
