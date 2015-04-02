@@ -155,7 +155,7 @@ struct pm8xxx_gpio_init {
 #define MSM_ION_MFC_META_SIZE  0x40000 /* 256 Kbytes */
 #define MSM_CONTIG_MEM_SIZE  0x65000
 #ifdef CONFIG_MSM_IOMMU
-#define MSM_ION_MM_SIZE		0x4800000
+#define MSM_ION_MM_SIZE		0x6000000
 #define MSM_ION_SF_SIZE		0
 #define MSM_ION_QSECOM_SIZE	0x780000 /* (7.5MB) */
 #ifdef CONFIG_CMA
@@ -5064,8 +5064,7 @@ static void __init m7wl_common_init(void)
 	platform_device_register(&m7wl_device_rpm_regulator);
 	if (msm_xo_init())
 		pr_err("Failed to initialize XO votes\n");
-	clk_ignor_list_add("msm_sdcc.3", "core_clk", &apq8064_clock_init_data_r2);
-	msm_clock_init(&apq8064_clock_init_data_r2);
+    msm_clock_init(&apq8064_clock_init_data);
 	m7wlj_init_gpiomux();
 	m7wl_i2c_init();
 
