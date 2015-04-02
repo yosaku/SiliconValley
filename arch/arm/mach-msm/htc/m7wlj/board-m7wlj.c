@@ -37,7 +37,6 @@
 #include <asm/mach/arch.h>
 #include <asm/hardware/gic.h>
 #include <asm/mach/mmc.h>
-#include <linux/platform_data/qcom_wcnss_device.h>
 
 #include <mach/board.h>
 #include <mach/msm_iomap.h>
@@ -3590,7 +3589,6 @@ static struct platform_device *common_devices[] __initdata = {
 	&msm_device_smd_apq8064,
 	&apq8064_device_otg,
 	&apq8064_device_hsusb_host,
-	&msm_device_wcnss_wlan,
 	&apq8064_fmem_device,
 #ifdef CONFIG_ANDROID_PMEM
 #ifndef CONFIG_MSM_MULTIMEDIA_USE_ION
