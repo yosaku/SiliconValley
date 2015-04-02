@@ -239,6 +239,15 @@ config LEDS_LP5521
 	  Driver provides direct control via LED class and interface for
 	  programming the engines.
 
+config LEDS_LP5521_HTC
+        tristate "LED Support for N.S. LP5521 LED driver chip"
+        depends on LEDS_CLASS && I2C
+        help
+          If you say yes here you get support for the National Semiconductor
+          LP5521 LED driver. It is 3 channel chip with programmable engines.
+          Driver provides direct control via LED class and interface for
+          programming the engines.
+
 config LEDS_LP5523
 	tristate "LED Support for N.S. LP5523 LED driver chip"
 	depends on LEDS_CLASS && I2C
@@ -298,6 +307,17 @@ config LEDS_PM8XXX
 
 	  To compile this driver as a module, choose M here: the module will
 	  be called leds-pmic8xxx.
+
+config LEDS_PM8921
+        tristate "LED Support for Qualcomm PMIC8921"
+        depends on MFD_PM8XXX
+        help
+          This option enables support for LEDs connected over PMIC8XXX
+          (Power Management IC) chip on Qualcomm reference boards,
+          for example SURF and FFAs.
+
+          To compile this driver as a module, choose M here: the module will
+          be called leds-pmic8921.
 
 config LEDS_PM8038
 	tristate "LED Support for Qualcomm PMIC8038"

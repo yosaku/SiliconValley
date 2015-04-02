@@ -24,11 +24,13 @@ else
 obj-$(CONFIG_LEDS_PM8XXX)		+= leds-pm8xxx.o
 endif
 obj-$(CONFIG_LEDS_PM8038)		+= leds-pm8038.o
+obj-$(CONFIG_LEDS_PM8921)               += leds-pm8921.o
 obj-$(CONFIG_LEDS_QPNP)			+= leds-qpnp.o
 obj-$(CONFIG_LEDS_GPIO_REGISTER)	+= leds-gpio-register.o
 obj-$(CONFIG_LEDS_GPIO)			+= leds-gpio.o
 obj-$(CONFIG_LEDS_LP3944)		+= leds-lp3944.o
 obj-$(CONFIG_LEDS_LP5521)		+= leds-lp5521.o
+obj-$(CONFIG_LEDS_LP5521_HTC)           += leds-lp5521_htc.o
 obj-$(CONFIG_LEDS_LP5523)		+= leds-lp5523.o
 obj-$(CONFIG_LEDS_TCA6507)		+= leds-tca6507.o
 obj-$(CONFIG_LEDS_CLEVO_MAIL)		+= leds-clevo-mail.o
