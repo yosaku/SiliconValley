@@ -689,7 +689,7 @@ static void msm_pm_set_timer(uint32_t modified_time_us)
 
 void arch_idle(void)
 {
-	return;
+	msm_pm_swfi();
 }
 
 static inline void msm_pm_ftrace_lpm_enter(unsigned int cpu,
