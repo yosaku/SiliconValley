@@ -672,7 +672,7 @@ static void slab_set_debugobj_lock_classes(struct kmem_cache *cachep)
 		slab_set_debugobj_lock_classes_node(cachep, node);
 }
 
-static void init_node_lock_keys(int q)
+static inline void init_node_lock_keys(int q)
 {
 	struct cache_sizes *s = malloc_sizes;
 
@@ -707,11 +707,11 @@ static inline void init_lock_keys(void)
 {
 }
 
-static void slab_set_debugobj_lock_classes_node(struct kmem_cache *cachep, int node)
+static inline void slab_set_debugobj_lock_classes_node(struct kmem_cache *cachep, int node)
 {
 }
 
-static void slab_set_debugobj_lock_classes(struct kmem_cache *cachep)
+static inline void slab_set_debugobj_lock_classes(struct kmem_cache *cachep)
 {
 }
 #endif
@@ -848,6 +848,7 @@ static void __slab_error(const char *function, struct kmem_cache *cachep,
  * line
   */
 
+#if MAX_NUMNODES > 1
 static int use_alien_caches __read_mostly = 1;
 static int __init noaliencache_setup(char *s)
 {
@@ -855,6 +856,9 @@ static int __init noaliencache_setup(char *s)
 	return 1;
 }
 __setup("noaliencache", noaliencache_setup);
+#else
+#define use_alien_caches (0)
+#endif
 
 static int __init slab_max_order_setup(char *str)
 {
@@ -1503,8 +1507,10 @@ void __init kmem_cache_init(void)
 	int order;
 	int node;
 
+#if MAX_NUMNODES > 1
 	if (num_possible_nodes() == 1)
 		use_alien_caches = 0;
+#endif
 
 	for (i = 0; i < NUM_INIT_LISTS; i++) {
 		kmem_list3_init(&initkmem_list3[i]);
