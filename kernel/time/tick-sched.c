@@ -21,6 +21,7 @@
 #include <linux/sched.h>
 #include <linux/module.h>
 #include <linux/rq_stats.h>
+#include <linux/hotplug_mgmt.h>
 
 #include <asm/irq_regs.h>
 
@@ -855,6 +856,7 @@ static enum hrtimer_restart tick_sched_timer(struct hrtimer *timer)
 	 * no valid regs pointer
 	 */
 	if (regs) {
+		void (*alg_tick)(int);
 		/*
 		 * When we are idle and the tick is stopped, we have to touch
 		 * the watchdog as we might not schedule for a really long
@@ -870,6 +872,7 @@ static enum hrtimer_restart tick_sched_timer(struct hrtimer *timer)
 		update_process_times(user_mode(regs));
 		profile_tick(CPU_PROFILING);
 
+<<<<<<< HEAD
 		if ((rq_info.init == 1) && (tick_do_timer_cpu == cpu)) {
 
 			/*
@@ -882,6 +885,11 @@ static enum hrtimer_restart tick_sched_timer(struct hrtimer *timer)
 			 */
 			wakeup_user();
 		}
+=======
+		alg_tick = ACCESS_ONCE(hotplug_alg_tick);
+		if (alg_tick)
+			alg_tick(cpu);
+>>>>>>> 6a506e6... all auto_hotplug code from DKP,thx to decimalman!
 	}
 
 	hrtimer_forward(timer, now, tick_period);
