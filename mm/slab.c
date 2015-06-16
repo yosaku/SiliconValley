@@ -87,6 +87,7 @@
  */
 
 #include	<linux/slab.h>
+#include	<linux/kernel.h>
 #include	<linux/mm.h>
 #include	<linux/poison.h>
 #include	<linux/swap.h>
@@ -4130,6 +4131,7 @@ static int enable_cpucache(struct kmem_cache *cachep, gfp_t gfp)
 	 * The numbers are guessed, we should auto-tune as described by
 	 * Bonwick.
 	 */
+	/*
 	if (cachep->buffer_size > 131072)
 		limit = 1;
 	else if (cachep->buffer_size > PAGE_SIZE)
@@ -4139,7 +4141,9 @@ static int enable_cpucache(struct kmem_cache *cachep, gfp_t gfp)
 	else if (cachep->buffer_size > 256)
 		limit = 54;
 	else
-		limit = 120;
+		limit = 120;*/
+	limit = (cachep->buffer_size > 32) ?
+		DIV_ROUND_UP(32768, cachep->buffer_size) : 1024;
 
 	/*
 	 * CPU bound tasks (e.g. network routing) can exhibit cpu bound
