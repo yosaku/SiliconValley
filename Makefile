@@ -330,7 +330,7 @@ include $(srctree)/scripts/Kbuild.include
 
 AS		= $(CROSS_COMPILE)as
 LD		= $(CROSS_COMPILE)ld
-CC		= ccache $(CROSS_COMPILE)gcc $(GRAPHITEFLAGS)
+CC		= ccache $(CROSS_COMPILE)gcc
 CPP		= $(CC) -E
 AR		= $(CROSS_COMPILE)ar
 NM		= $(CROSS_COMPILE)nm
@@ -354,7 +354,7 @@ KERNELFLAGS	= -marm -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4 -munalig
 		  -ffast-math -funsafe-math-optimizations -std=gnu89 -ftree-loop-ivcanon -fgcse-las \
 		  -fno-tree-vectorize -floop-interchange -fivopts -fpredictive-commoning \
 		  -ftree-loop-im -fweb --param l1-cache-size=16 --param l1-cache-line-size=16 --param l2-cache-size=1024 \
-		  $(GRAPHITEFLAGS) 
+		  -floop-nest-optimize -ftree-loop-distribution
 CFLAGS_MODULE   =
 AFLAGS_MODULE   =
 LDFLAGS_MODULE  =
