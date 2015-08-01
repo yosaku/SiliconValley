@@ -348,13 +348,11 @@ CHECK		= sparse
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
 
-GRAPHITEFLAGS	= -fgraphite -fgraphite-identity -floop-flatten -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block -floop-nest-optimize -ftree-loop-distribution -floop-parallelize-all 
-
 KERNELFLAGS	= -marm -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4 -munaligned-access \
-		  -ffast-math -funsafe-math-optimizations -std=gnu89 -ftree-loop-ivcanon -fgcse-las \
+		  -ffast-math -std=gnu89 -ftree-loop-ivcanon -fgcse-sm  -fgcse-las \
 		  -fno-tree-vectorize -floop-interchange -fivopts -fpredictive-commoning \
-		  -ftree-loop-im -fweb --param l1-cache-size=16 --param l1-cache-line-size=16 --param l2-cache-size=1024 \
-		  -floop-nest-optimize -ftree-loop-distribution
+		  -ftree-loop-im --param l1-cache-size=16 --param l1-cache-line-size=16 --param l2-cache-size=1024 \
+		  -floop-nest-optimize -ftree-loop-distribution -floop-parallelize-all 
 CFLAGS_MODULE   =
 AFLAGS_MODULE   =
 LDFLAGS_MODULE  =
@@ -580,52 +578,52 @@ KBUILD_CFLAGS += $(call cc-option,-Wframe-larger-than=${CONFIG_FRAME_WARN})
 endif
 
 # Force gcc to behave correct even for buggy distributions
-ifndef CONFIG_CC_STACKPROTECTOR
+#ifndef CONFIG_CC_STACKPROTECTOR
 KBUILD_CFLAGS += $(call cc-option, -fno-stack-protector)
-endif
+#endif
 
 # This warning generated too much noise in a regular build.
 # Use make W=1 to enable this warning (see scripts/Makefile.build)
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
 
-ifdef CONFIG_FRAME_POINTER
-KBUILD_CFLAGS	+= -fno-omit-frame-pointer -fno-optimize-sibling-calls
-else
+#ifdef CONFIG_FRAME_POINTER
+#KBUILD_CFLAGS	+= -fno-omit-frame-pointer -fno-optimize-sibling-calls
+#else
 # Some targets (ARM with Thumb2, for example), can't be built with frame
 # pointers.  For those, we don't have FUNCTION_TRACER automatically
 # select FRAME_POINTER.  However, FUNCTION_TRACER adds -pg, and this is
 # incompatible with -fomit-frame-pointer with current GCC, so we don't use
 # -fomit-frame-pointer with FUNCTION_TRACER.
-ifndef CONFIG_FUNCTION_TRACER
+#ifndef CONFIG_FUNCTION_TRACER
 KBUILD_CFLAGS	+= -fomit-frame-pointer
-endif
-endif
+#endif
+#endif
 
 KBUILD_CFLAGS   += $(call cc-option, -fno-var-tracking-assignments)
 
-ifdef CONFIG_DEBUG_INFO
-KBUILD_CFLAGS	+= -g
-KBUILD_AFLAGS	+= -gdwarf-2
-endif
+#ifdef CONFIG_DEBUG_INFO
+#KBUILD_CFLAGS	+= -g
+#KBUILD_AFLAGS	+= -gdwarf-2
+#endif
 
-ifdef CONFIG_DEBUG_INFO_REDUCED
-KBUILD_CFLAGS 	+= $(call cc-option, -femit-struct-debug-baseonly)
-endif
+#ifdef CONFIG_DEBUG_INFO_REDUCED
+#KBUILD_CFLAGS 	+= $(call cc-option, -femit-struct-debug-baseonly)
+#endif
 
-ifdef CONFIG_FUNCTION_TRACER
-KBUILD_CFLAGS	+= -pg
-ifdef CONFIG_DYNAMIC_FTRACE
-	ifdef CONFIG_HAVE_C_RECORDMCOUNT
-		BUILD_C_RECORDMCOUNT := y
-		export BUILD_C_RECORDMCOUNT
-	endif
-endif
-endif
+#ifdef CONFIG_FUNCTION_TRACER
+#KBUILD_CFLAGS	+= -pg
+#ifdef CONFIG_DYNAMIC_FTRACE
+#	ifdef CONFIG_HAVE_C_RECORDMCOUNT
+#		BUILD_C_RECORDMCOUNT := y
+#		export BUILD_C_RECORDMCOUNT
+#	endif
+#endif
+#endif
 
 # We trigger additional mismatches with less inlining
-ifdef CONFIG_DEBUG_SECTION_MISMATCH
-KBUILD_CFLAGS += $(call cc-option, -fno-inline-functions-called-once)
-endif
+#ifdef CONFIG_DEBUG_SECTION_MISMATCH
+#KBUILD_CFLAGS += $(call cc-option, -fno-inline-functions-called-once)
+#endif
 
 # arch Makefile may override CC so keep this after arch Makefile is included
 NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
