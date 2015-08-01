@@ -4,6 +4,7 @@
 # create a compressed vmlinuz image from the original vmlinux
 #
 
+CFLAGS_KERNEL:= -fno-loop-parallelize-all -fno-loop-nest-optimize
 OBJS		=
 
 # Ensure that MMCIF loader code appears early in the image
