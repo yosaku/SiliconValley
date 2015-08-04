@@ -566,7 +566,7 @@ static bool msm_pm_power_collapse(bool from_idle)
 		saved_acpuclk_rate = acpuclk_power_collapse();
 
 	if (MSM_PM_DEBUG_CLOCK & msm_pm_debug_mask)
-		pr_info("CPU%u: %s: change clock rate (old rate = %lu)\n",
+		pr_debug("CPU%u: %s: change clock rate (old rate = %lu)\n",
 			cpu, __func__, saved_acpuclk_rate);
 
 	if (cp15_data.save_cp15)
