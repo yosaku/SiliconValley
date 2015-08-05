@@ -414,6 +414,7 @@ EXPORT_SYMBOL_GPL(cpu_up);
 #ifdef CONFIG_PM_SLEEP_SMP
 static cpumask_var_t frozen_cpus;
 
+/*
 void __weak arch_disable_nonboot_cpus_begin(void)
 {
 }
@@ -431,7 +432,7 @@ int disable_nonboot_cpus(void)
 	/*
 	 * We take down all of the non-boot CPUs in one shot to avoid races
 	 * with the userspace trying to use the CPU hotplug at the same time
-	 */
+	 *
 	cpumask_clear(frozen_cpus);
 	arch_disable_nonboot_cpus_begin();
 
@@ -453,7 +454,7 @@ int disable_nonboot_cpus(void)
 
 	if (!error) {
 		BUG_ON(num_online_cpus() > 1);
-		/* Make sure the CPUs won't be enabled by someone else */
+		/* Make sure the CPUs won't be enabled by someone else *
 		cpu_hotplug_disabled = 1;
 	} else {
 		printk(KERN_ERR "Non-boot CPUs are not disabled\n");
@@ -474,7 +475,7 @@ void __ref enable_nonboot_cpus(void)
 {
 	int cpu, error;
 
-	/* Allow everyone to use the CPU hotplug again */
+	/* Allow everyone to use the CPU hotplug again *
 	cpu_maps_update_begin();
 	cpu_hotplug_disabled = 0;
 	if (cpumask_empty(frozen_cpus))
@@ -499,6 +500,7 @@ void __ref enable_nonboot_cpus(void)
 out:
 	cpu_maps_update_done();
 }
+*/
 
 static int __init alloc_frozen_cpus(void)
 {
