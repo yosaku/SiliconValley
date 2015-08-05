@@ -213,13 +213,13 @@ static inline void cpu_hotplug_driver_unlock(void)
 #define unregister_hotcpu_notifier(nb)	({ (void)(nb); })
 #endif		/* CONFIG_HOTPLUG_CPU */
 
-#ifdef CONFIG_PM_SLEEP_SMP
-extern int disable_nonboot_cpus(void);
-extern void enable_nonboot_cpus(void);
-#else /* !CONFIG_PM_SLEEP_SMP */
+//#ifdef CONFIG_PM_SLEEP_SMP
+//extern int disable_nonboot_cpus(void);
+//extern void enable_nonboot_cpus(void);
+//else !CONFIG_PM_SLEEP_SMP 
 static inline int disable_nonboot_cpus(void) { return 0; }
 static inline void enable_nonboot_cpus(void) {}
-#endif /* !CONFIG_PM_SLEEP_SMP */
+//#endif !CONFIG_PM_SLEEP_SMP 
 
 #define IDLE_START 1
 #define IDLE_END 2
