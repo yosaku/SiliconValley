@@ -262,7 +262,6 @@ static struct attribute *msm_thermal_attributes[] = {
 	NULL,
 };
 
-
 static struct attribute_group msm_thermal_attr_group = {
 	.attrs = msm_thermal_attributes,
 	.name = "conf",
