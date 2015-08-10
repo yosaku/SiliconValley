@@ -277,21 +277,13 @@ void mdp4_overlay_iommu_pipe_free(int ndx, int all)
 	if (pipe->flags & MDP_MEMORY_ID_TYPE_FB) {
 		pipe->flags &= ~MDP_MEMORY_ID_TYPE_FB;
 
-		if (pipe->put0_need) {
-			fput_light(pipe->srcp0_file, pipe->put0_need);
-			pipe->put0_need = 0;
-		}
-		if (pipe->put1_need) {
-			fput_light(pipe->srcp1_file, pipe->put1_need);
-			pipe->put1_need = 0;
-		}
-		if (pipe->put2_need) {
-			fput_light(pipe->srcp2_file, pipe->put2_need);
-			pipe->put2_need = 0;
-		}
-
 		pr_debug("%s: ndx=%d flags=%x put=%d\n", __func__,
 			pipe->pipe_ndx, pipe->flags, pipe->put0_need);
+
+		fput_light(pipe->srcp0_file, pipe->put0_need);
+		fput_light(pipe->srcp1_file, pipe->put1_need);
+		fput_light(pipe->srcp2_file, pipe->put2_need);
+
 		return;
 	}
 
@@ -3541,12 +3533,14 @@ int mdp4_overlay_set(struct fb_info *info, struct mdp_overlay *req)
 
 	mixer = mfd->panel_info.pdest;	/* DISPLAY_1 or DISPLAY_2 */
 
-	ret = mdp4_calc_req_blt(mfd, req);
-
-	if (ret < 0) {
-		mutex_unlock(&mfd->dma->ov_mutex);
-		pr_err("%s: blt mode is required! ret=%d\n", __func__, ret);
-		return ret;
+	if (!perf_current.use_ov_blt[mixer]) {
+		ret = mdp4_calc_req_blt(mfd, req);
+		if (ret < 0) {
+			mutex_unlock(&mfd->dma->ov_mutex);
+			pr_err("%s: blt mode is required! ret=%d\n",
+				__func__, ret);
+			return ret;
+		}
 	}
 
 	ret = mdp4_overlay_req2pipe(req, mixer, &pipe, mfd);
