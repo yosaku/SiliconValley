@@ -1743,9 +1743,9 @@ static int msm_fb_register(struct msm_fb_data_type *mfd)
 	     mfd->index, fbi->var.xres, fbi->var.yres, fbi->fix.smem_len);
 
 #ifdef CONFIG_FB_MSM_LOGO
-	/* Flip buffer */
-	if (!load_565rle_image(INIT_IMAGE_FILE, bf_supported))
-		;
+	if (hdmi_prim_display ||
+	    (mfd->panel_info.type != DTV_PANEL))
+		load_565rle_image(INIT_IMAGE_FILE, bf_supported);
 #endif
 	ret = 0;
 
@@ -2247,11 +2247,14 @@ static int msm_fb_pan_display_sub(struct fb_var_screeninfo *var,
 	}
 	complete(&mfd->msmfb_update_notify);
 	mutex_lock(&msm_fb_notify_update_sem);
+	/*
 	if (mfd->msmfb_no_update_notify_timer.function)
 		del_timer(&mfd->msmfb_no_update_notify_timer);
 
 	mfd->msmfb_no_update_notify_timer.expires = jiffies + (2 * HZ);
 	add_timer(&mfd->msmfb_no_update_notify_timer);
+	*/
+	mod_timer(&mfd->msmfb_no_update_notify_timer, 2 * HZ);
 	mutex_unlock(&msm_fb_notify_update_sem);
 
 	down(&msm_fb_pan_sem);
@@ -4351,6 +4354,7 @@ static int msm_fb_ioctl(struct fb_info *info, unsigned int cmd,
 		if (ret == 1)
 			ret = copy_to_user(argp, &mdp_pp, sizeof(mdp_pp));
 		break;
+
 	case MSMFB_BUFFER_SYNC:
 		ret = copy_from_user(&buf_sync, argp, sizeof(buf_sync));
 		if (ret)
