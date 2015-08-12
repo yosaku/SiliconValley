@@ -557,6 +557,9 @@ int get_nohz_timer_target(void)
 	int i;
 	struct sched_domain *sd;
 
+	if (!idle_cpu(cpu))
+		return cpu;
+
 	rcu_read_lock();
 	for_each_domain(cpu, sd) {
 		for_each_cpu(i, sched_domain_span(sd)) {
