@@ -245,8 +245,8 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 HOSTCC       = ccache gcc
 HOSTCXX      = ccache g++
-HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer
-HOSTCXXFLAGS = -O2
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -Os -fomit-frame-pointer
+HOSTCXXFLAGS = -Os
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -348,10 +348,10 @@ CHECK		= sparse
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
 
-KERNELFLAGS	= -marm -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4 -munaligned-access \
+KERNELFLAGS	= -marm -Os -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4 -munaligned-access \
 		  -ffast-math -std=gnu89 -ftree-loop-ivcanon -fgcse-sm  -fgcse-las \
 		  -fno-tree-vectorize -floop-interchange -fivopts -fpredictive-commoning \
-		  -ftree-loop-im --param l1-cache-size=16 --param l1-cache-line-size=16 --param l2-cache-size=1024 \
+		  -ftree-loop-im --param l1-cache-size=32 --param l1-cache-line-size=64 --param l2-cache-size=2048 \
 		  -floop-nest-optimize -ftree-loop-distribution -floop-parallelize-all 
 CFLAGS_MODULE   =
 AFLAGS_MODULE   =
@@ -565,11 +565,7 @@ endif # $(dot-config)
 # Defaults to vmlinux, but the arch makefile usually adds further targets
 all: vmlinux
 
-ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
-KBUILD_CFLAGS	+= -Os
-else
 KBUILD_CFLAGS	+= -O2
-endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
 
