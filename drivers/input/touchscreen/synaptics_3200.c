@@ -2138,20 +2138,6 @@ static void synaptics_ts_finger_func(struct synaptics_ts_data *ts)
 
 					if (ts->layout[1] < finger_data[i][0])
 						finger_data[i][0] = ts->layout[1];
-					if(ts->width_factor && ts->height_factor){
-						printk(KERN_INFO
-							"[TP] Screen:F[%02d]:Up, X=%d, Y=%d, W=%d, Z=%d, IM:%d, CIDIM:%d, Freq:%d, NS:%d\n",
-							i+1, (x_pos[i]*ts->width_factor)>>SHIFT_BITS,
-							(y_pos[i]*ts->height_factor)>>SHIFT_BITS,
-							finger_data[i][2], finger_data[i][3],
-							temp_im, temp_cidim, noise_index[9], noise_index[4]);
-					} else {
-						printk(KERN_INFO
-							"[TP] Raw:F[%02d]:Up, X=%d, Y=%d, W=%d, Z=%d, IM:%d, CIDIM:%d, Freq:%d, NS:%d\n",
-							i+1, x_pos[i], y_pos[i],
-							finger_data[i][2], finger_data[i][3],
-							temp_im, temp_cidim, noise_index[9], noise_index[4]);
-					}
 				}
 				base += 5;
 			}
@@ -2341,20 +2327,6 @@ static void synaptics_ts_finger_func(struct synaptics_ts_data *ts)
 						finger_pressed &= ~BIT(i);
 
 						if ((finger_press_changed & BIT(i)) && ts->debug_log_level & BIT(3)) {
-							if(ts->width_factor && ts->height_factor){
-								printk(KERN_INFO
-									"[TP] Screen:F[%02d]:Down, X=%d, Y=%d, W=%d, Z=%d, IM:%d, CIDIM:%d, Freq:%d, NS:%d\n",
-									i+1, (finger_data[i][0]*ts->width_factor)>>SHIFT_BITS,
-									(finger_data[i][1]*ts->height_factor)>>SHIFT_BITS,
-									finger_data[i][2], finger_data[i][3],
-									temp_im, temp_cidim, noise_index[9], noise_index[4]);
-							} else {
-								printk(KERN_INFO
-									"[TP] Raw:F[%02d]:Down, X=%d, Y=%d, W=%d, Z=%d, IM:%d, CIDIM:%d, Freq:%d, NS:%d\n",
-									i+1, finger_data[i][0], finger_data[i][1],
-									finger_data[i][2], finger_data[i][3],
-									temp_im, temp_cidim, noise_index[9], noise_index[4]);
-							}
 							if ((ts->block_touch_time_near | ts->block_touch_time_far) && ts->block_touch_event)
 								printk(KERN_INFO "[TP] Block This Event!!\n");
 						}
