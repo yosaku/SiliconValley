@@ -36,13 +36,8 @@
 #include "mach/htc_battery_cell.h"
 #endif
 
-#if defined(pr_debug)
-#undef pr_debug
-#endif
-#define pr_debug(fmt, ...) do { \
-		if (flag_enable_bms_chg_log) \
-			printk(KERN_INFO pr_fmt_debug(fmt), ##__VA_ARGS__); \
-	} while (0)
+#define pr_info(x...)
+
 static bool flag_enable_bms_chg_log;
 #define BATT_LOG_BUF_LEN (512)
 
