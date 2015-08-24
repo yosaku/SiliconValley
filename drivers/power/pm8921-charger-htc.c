@@ -57,13 +57,7 @@ struct delayed_work ext_usb_temp_task;
 struct delayed_work ext_usb_bms_notify_task;
 struct workqueue_struct *ext_charger_wq = NULL;
 
-#if defined(pr_debug)
-#undef pr_debug
-#endif
-#define pr_debug(fmt, ...) do { \
-		if (flag_enable_BMS_Charger_log) \
-			printk(KERN_INFO pr_fmt_debug(fmt), ##__VA_ARGS__); \
-	} while (0)
+#define pr_info(x...)
 
 static bool flag_enable_BMS_Charger_log;
 static bool reverse_boost_fix_ongoing = false;
