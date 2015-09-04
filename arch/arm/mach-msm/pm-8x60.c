@@ -788,7 +788,8 @@ static int msm_pm_idle_prepare(struct cpuidle_device *dev,
 			continue;
 		if (mode == MSM_PM_SLEEP_MODE_POWER_COLLAPSE && other_cpus)
 			continue;
-		if (mode == MSM_PM_SLEEP_MODE_RETENTION && other_cpus)
+		if (mode == MSM_PM_SLEEP_MODE_RETENTION &&
+				msm_pm_retention_calls_tz && other_cpus)
 			continue;
 
 		if (pm_sleep_ops.lowest_limits)
