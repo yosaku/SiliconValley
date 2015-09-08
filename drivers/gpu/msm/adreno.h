@@ -52,7 +52,13 @@
 #define KGSL_NOP_IB_IDENTIFIER	        0x20F20F20
 #define KGSL_PWRON_FIXUP_IDENTIFIER	0x2AFAFAFA
 
+#ifdef CONFIG_MSM_SCM
+#define ADRENO_DEFAULT_PWRSCALE_POLICY  (&kgsl_pwrscale_policy_tz)
+#elif defined CONFIG_MSM_SLEEP_STATS_DEVICE
+#define ADRENO_DEFAULT_PWRSCALE_POLICY  (&kgsl_pwrscale_policy_idlestats)
+#else
 #define ADRENO_DEFAULT_PWRSCALE_POLICY  (&kgsl_pwrscale_policy_conservative)
+#endif
 
 
 #define ADRENO_ISTORE_START 0x5000 /* Istore offset */
