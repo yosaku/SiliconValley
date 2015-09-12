@@ -56,7 +56,7 @@ unsigned int normalized_sysctl_sched_latency = NSEC_PER_SEC / 3 * 4 / HZ;
  * SCHED_TUNABLESCALING_LINEAR - scaled linear, *ncpus
  */
 enum sched_tunable_scaling sysctl_sched_tunable_scaling
-	= SCHED_TUNABLESCALING_LOG;
+	= SCHED_TUNABLESCALING_NONE;
 
 /*
  * Minimal preemption granularity for CPU-bound tasks:
@@ -95,7 +95,7 @@ unsigned int __read_mostly sysctl_sched_wake_to_idle;
 unsigned int sysctl_sched_wakeup_granularity = NSEC_PER_SEC / HZ / 2;
 unsigned int normalized_sysctl_sched_wakeup_granularity = NSEC_PER_SEC / HZ / 2;
 
-const_debug unsigned int sysctl_sched_migration_cost = 500000UL;
+const_debug unsigned int sysctl_sched_migration_cost = 300000UL;
 
 /*
  * The exponential sliding  window over which load is averaged for shares
@@ -2662,6 +2662,8 @@ static int select_idle_sibling(struct task_struct *p, int target)
 	struct sched_domain *sd;
 	struct sched_group *sg;
 	int i = task_cpu(p);
+
+	goto done;
 
 	if (idle_cpu(target))
 		return target;

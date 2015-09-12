@@ -512,7 +512,7 @@ static unsigned long uksm_pages_unshared;
 static unsigned int uksm_sleep_jiffies;
 
 /* Base CPU limit that ratios are scaled against */
-static unsigned int uksm_max_cpu_percentage;
+static unsigned int uksm_max_cpu_percentage = 20;
 
 static int uksm_cpu_governor = 2;
 
