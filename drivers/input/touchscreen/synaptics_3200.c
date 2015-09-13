@@ -212,7 +212,6 @@ static void syn_handle_block_touch(struct synaptics_ts_data *ts, int enable)
 #define S2W_TIMEOUT 35
 #define S2W_TIMEOUT2 60
 #define S2W_TIMEOUT3 70
-#define L2M_TIMEOUT 30
 #define DT2W_TIMEOUT_MAX 400
 #define DT2W_DELTA 230
 #define L2W_TIMEOUT 50
@@ -220,13 +219,11 @@ static void syn_handle_block_touch(struct synaptics_ts_data *ts, int enable)
 static bool scr_suspended = false;
 static int button_id = 0;
 static int s2w_switch = 0;
-static int l2m_switch = 0;
 static int l2w_switch = 0;
 static int dt2w_switch = 0;
 static int pocket_detect = 0;
 static int s2w_hist[2] = {0, 0};
 static unsigned long s2w_time[3] = {0, 0, 0};
-static unsigned long l2m_time[2] = {0, 0};
 static unsigned long pwrtrigger_time[2] = {0, 0};
 static int wakesleep_vib = 0;
 static int vib_strength = 15;
@@ -309,28 +306,6 @@ void sweep2wake_pwrtrigger(void) {
 	schedule_work(&sweep2wake_presspwr_work);
         return;
 }
-
-static void logo2menu_pressmenu(struct work_struct * logo2menu_pressmenu_work) {
-	struct synaptics_ts_data *ts = gl_ts;
-
-	if (l2w_switch == 1)
-		break_longtap_count = 1;
-
-        input_event(ts->input_dev, EV_KEY, KEY_MENU, 1);
-        input_sync(ts->input_dev);
-        msleep(60);
-        input_event(ts->input_dev, EV_KEY, KEY_MENU, 0);
-        input_sync(ts->input_dev);
-        msleep(60);
-        return;
-}
-
-static DECLARE_WORK(logo2menu_pressmenu_work, logo2menu_pressmenu); 
-
-void logo2menu_menutrigger(void) {
-                schedule_work(&logo2menu_pressmenu_work);
-        return;
-} 
 
 static int allow_longtap_count = 1;
 
@@ -1978,26 +1953,6 @@ static ssize_t synaptics_doubletap2wake_dump(struct device *dev, struct device_a
 static DEVICE_ATTR(doubletap2wake, (S_IWUSR|S_IRUGO),
 	synaptics_doubletap2wake_show, synaptics_doubletap2wake_dump); 
 
-
-static ssize_t synaptics_logo2menu_show(struct device *dev, struct device_attribute *attr, char *buf)
-{
-	size_t count = 0;
-	count += sprintf(buf, "%d\n", l2m_switch);
-	return count;
-}
-
-static ssize_t synaptics_logo2menu_dump(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
-{
-	if (buf[0] >= '0' && buf[0] <= '1' && buf[1] == '\n')
-	if (l2m_switch != buf[0] - '0') {
-		l2m_switch = buf[0] - '0';
-	}
-	return count;
-}
-
-static DEVICE_ATTR(logo2menu, (S_IWUSR|S_IRUGO),
-	synaptics_logo2menu_show, synaptics_logo2menu_dump); 
-
 static ssize_t synaptics_logo2wake_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	size_t count = 0;
@@ -2242,11 +2197,6 @@ static int synaptics_touch_sysfs_init(void)
 		printk(KERN_ERR "%s: sysfs_create_file failed\n", __func__);
 		return ret;
 	} 
-	ret = sysfs_create_file(android_touch_kobj, &dev_attr_logo2menu.attr);
-	if (ret) {
-		printk(KERN_ERR "%s: sysfs_create_file failed\n", __func__);
-		return ret;
-	} 
 	ret = sysfs_create_file(android_touch_kobj, &dev_attr_logo2wake.attr);
 	if (ret) {
 		printk(KERN_ERR "%s: sysfs_create_file failed\n", __func__);
@@ -2315,7 +2265,6 @@ static void synaptics_touch_sysfs_remove(void)
 #ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
 	sysfs_remove_file(android_touch_kobj, &dev_attr_sweep2wake.attr);
 	sysfs_remove_file(android_touch_kobj, &dev_attr_doubletap2wake.attr);
-	sysfs_remove_file(android_touch_kobj, &dev_attr_logo2menu.attr);
 	sysfs_remove_file(android_touch_kobj, &dev_attr_logo2wake.attr);
 	sysfs_remove_file(android_touch_kobj, &dev_attr_pocket_detect.attr);
 	sysfs_remove_file(android_touch_kobj, &dev_attr_vib_strength.attr);
@@ -2487,16 +2436,6 @@ static void sweep2wake_func(int button_id) {
 	}
 }
 
-static void logo2menu_func(void) {
-
-	if (l2m_switch == 1 && scr_suspended == false && ((l2m_time[0]-l2m_time[1]) < L2M_TIMEOUT)) {
-		// printk("[L2M]: menu button activated\n");
-		logo2menu_menutrigger();
-	} 
-
-        return;
-}
-
 static void logo2wake_func(void) {
 
 	if (l2w_switch == 1) {
@@ -2510,14 +2449,11 @@ static int last_touch_position_x = 0;
 static int last_touch_position_y = 0;
 
 static int report_htc_logo_area(int x, int y) {
-	if (l2m_switch == 0 && l2w_switch == 0)
+	if (l2w_switch == 0)
 		return 0;
 
 	if (last_touch_position_x > 620 && last_touch_position_x < 1150) {
 		if (last_touch_position_y > 2835 || (scr_suspended == true && last_touch_position_y > 2750)) {
-			l2m_time[1] = l2m_time[0];
-			l2m_time[0] = jiffies;
-			// printk("[L2M]: HTC button pressed\n");
 			return 1;
 		}
 	}
@@ -2721,14 +2657,12 @@ static void synaptics_ts_finger_func(struct synaptics_ts_data *ts)
 		dt2w_func(last_touch_position_x, last_touch_position_y, dt_trigger_time);
 	}
 
-     if ((((ts->finger_count > 0)?1:0) == 0) && ((l2m_switch == 1) || (l2w_switch == 1))) { 
+     if ((((ts->finger_count > 0)?1:0) == 0) && ((l2w_switch == 1))) { 
 
 		// released (supposedly before long tap happened), break long tap count work...
 		break_longtap_count = 1;
 		// released, should allow logo long tap counting again...
 		allow_longtap_count = 1;
-		if (report_htc_logo_area(last_touch_position_x,last_touch_position_x))
-			logo2menu_func();
       }
 #endif 
 		if (ts->pre_finger_data[0][0] < 2 || finger_pressed) {
