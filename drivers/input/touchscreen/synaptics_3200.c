@@ -2476,11 +2476,6 @@ static void dt2w_func(int x, int y, cputime64_t trigger_time)
 {
 	//printk("dt2w x=%d y=%d\n", x, y);
 
-        if ((x > 0 && x < 150) || x > 1470 || y > 2880 || (dt2w_switch == 1 && (y > 0 && y < 2100))) {
-                reset_dt2w();
-                return;
-        }
-
         if (prev_time == 0) {
                 prev_time = trigger_time;
                 prev_x = x;
