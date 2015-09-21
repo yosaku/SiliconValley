@@ -352,7 +352,7 @@ KERNELFLAGS	= -marm -Os -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4 -mun
 		  -ffast-math -std=gnu89 -ftree-loop-ivcanon -fgcse-sm  -fgcse-las \
 		  -fno-tree-vectorize -floop-interchange -fivopts -fpredictive-commoning \
 		  -ftree-loop-im --param l1-cache-size=32 --param l1-cache-line-size=64 --param l2-cache-size=2048 \
-		  -floop-nest-optimize -ftree-loop-distribution -floop-parallelize-all 
+		  -floop-nest-optimize -ftree-loop-distribution
 CFLAGS_MODULE   =
 AFLAGS_MODULE   =
 LDFLAGS_MODULE  =
