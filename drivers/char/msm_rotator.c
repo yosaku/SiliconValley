@@ -1610,21 +1610,6 @@ static int get_img(struct msmfb_data *fbd, int domain, unsigned long *start,
 		_put_img(h,d)
 static void _put_img(struct ion_handle *p_ihdl, int domain)
 {
-#ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
-	if (!IS_ERR_OR_NULL(p_ihdl)) {
-		pr_debug("%s(): p_ihdl %p\n", __func__, p_ihdl);
-		if (rot_iommu_split_domain) {
-			if (!secure)
-				ion_unmap_iommu(msm_rotator_dev->client,
-					p_ihdl, domain, GEN_POOL);
-		} else {
-			ion_unmap_iommu(msm_rotator_dev->client,
-				p_ihdl, ROTATOR_SRC_DOMAIN, GEN_POOL);
-		}
-
-		ion_free(msm_rotator_dev->client, p_ihdl);
-	}
-#endif
 	pr_debug("%s(): p_ihdl %p\n", __func__, p_ihdl);
 	if (rot_iommu_split_domain) {
 		if (domain != -1)
