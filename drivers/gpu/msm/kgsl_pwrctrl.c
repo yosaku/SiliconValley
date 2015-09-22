@@ -19,6 +19,8 @@
 #include <mach/msm_bus.h>
 #include <linux/ktime.h>
 #include <linux/delay.h>
+#include <linux/sched.h>
+
 
 #include "kgsl.h"
 #include "kgsl_pwrscale.h"
@@ -43,6 +45,11 @@
  */
 #define INIT_UDELAY		200
 #define MAX_UDELAY		2000
+#define SAMPLING_PERIODS 	15
+#define INDEX_MAX_VALUE		(SAMPLING_PERIODS - 1)
+
+static unsigned int history[SAMPLING_PERIODS];
+static unsigned int index;
 
 struct clk_pair {
 	const char *name;
@@ -127,67 +134,50 @@ void kgsl_pwrctrl_pwrlevel_change(struct kgsl_device *device,
 				unsigned int new_level)
 {
 	struct kgsl_pwrctrl *pwr = &device->pwrctrl;
-	struct kgsl_pwrlevel *pwrlevel;
-	int delta;
-	int level;
+	unsigned int running, avg_running = 0;
+	unsigned int i, j;
+	if (new_level < (pwr->num_pwrlevels - 1) &&
+		new_level >= pwr->thermal_pwrlevel &&
+		new_level != pwr->active_pwrlevel) {
+		struct kgsl_pwrlevel *pwrlevel = &pwr->pwrlevels[new_level];
+		//int diff = new_level - pwr->active_pwrlevel;
+		//int d = (diff > 0) ? 1 : -1;
+		//int level = pwr->active_pwrlevel;
+		/* Update the clock stats */
+		update_clk_statistics(device, true);
+		/* Finally set active level */
+		pwr->active_pwrlevel = new_level;
+			
+		running = nr_running() * 100;
+		history[index] = running;
+		
+		for (i = 0, j = index; i < SAMPLING_PERIODS; i++, j--) {
+			avg_running += history[j];
+			if (unlikely(j == 0))
+				j = INDEX_MAX_VALUE;
+			}
 
-	/* Adjust the power level to the current constraints */
-	new_level = _adjust_pwrlevel(pwr, new_level);
-
-	if (new_level == pwr->active_pwrlevel)
-		return;
-
-	delta = new_level < pwr->active_pwrlevel ? -1 : 1;
-
-	update_clk_statistics(device, true);
-
-	level = pwr->active_pwrlevel;
-
-	/*
-	 * Set the active powerlevel first in case the clocks are off - if we
-	 * don't do this then the pwrlevel change won't take effect when the
-	 * clocks come back
-	 */
-
-	pwr->active_pwrlevel = new_level;
-	pwrlevel = &pwr->pwrlevels[pwr->active_pwrlevel];
-
-	if (test_bit(KGSL_PWRFLAGS_AXI_ON, &pwr->power_flags)) {
-
-		if (pwr->pcl)
-			msm_bus_scale_client_update_request(pwr->pcl,
-				pwrlevel->bus_freq);
-		else if (pwr->ebi1_clk)
-			clk_set_rate(pwr->ebi1_clk, pwrlevel->bus_freq);
-	}
-
-	if (test_bit(KGSL_PWRFLAGS_CLK_ON, &pwr->power_flags) ||
-		(device->state == KGSL_STATE_NAP)) {
-
-		/*
-		 * On some platforms, instability is caused on
-		 * changing clock freq when the core is busy.
-		 * Idle the gpu core before changing the clock freq.
-		 */
-
-		if (pwr->idle_needed == true)
-			device->ftbl->idle(device);
-
-		/*
-		 * Don't shift by more than one level at a time to
-		 * avoid glitches.
-		 */
-
-		while (level != new_level) {
-			level += delta;
-
-			clk_set_rate(pwr->grp_clks[0],
-				pwr->pwrlevels[level].gpu_freq);
+		if (unlikely(index++ == INDEX_MAX_VALUE))
+			index = 0;
+		
+		if ((test_bit(KGSL_PWRFLAGS_CLK_ON, &pwr->power_flags)) ||
+			(device->state == KGSL_STATE_NAP)) {
+			if (avg_running < 375 && clk_get_rate(pwr->grp_clks[0]) > 128000000) {
+				clk_set_rate(pwr->grp_clks[0], 128000000);
+			} else if (avg_running >= 375 && clk_get_rate(pwr->grp_clks[0]) < 128000000) {
+				clk_set_rate(pwr->grp_clks[0], 450000000);
+			}
 		}
+		if (test_bit(KGSL_PWRFLAGS_AXI_ON, &pwr->power_flags)) {
+			if (pwr->pcl)
+				msm_bus_scale_client_update_request(pwr->pcl,
+					pwrlevel->bus_freq);
+			else if (pwr->ebi1_clk)
+				clk_set_rate(pwr->ebi1_clk, pwrlevel->bus_freq);
+		}
+		trace_kgsl_pwrlevel(device, pwr->active_pwrlevel,
+				    pwrlevel->gpu_freq);
 	}
-
-
-	trace_kgsl_pwrlevel(device, pwr->active_pwrlevel, pwrlevel->gpu_freq);
 }
 
 EXPORT_SYMBOL(kgsl_pwrctrl_pwrlevel_change);
