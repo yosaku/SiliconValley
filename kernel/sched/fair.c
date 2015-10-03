@@ -2663,8 +2663,6 @@ static int select_idle_sibling(struct task_struct *p, int target)
 	struct sched_group *sg;
 	int i = task_cpu(p);
 
-	goto done;
-
 	if (idle_cpu(target))
 		return target;
 
