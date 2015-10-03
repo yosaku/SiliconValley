@@ -78,15 +78,9 @@ int pm8xxx_vibrator_config(struct pm8xxx_vib_config *vib_config)
 }
 EXPORT_SYMBOL(pm8xxx_vibrator_config);
 
-/* REVISIT: just for debugging, will be removed in final working version */
-static void __dump_vib_regs(struct pm8xxx_vib *vib, char *msg)
+/* REMOVED FUCKERS */
+static inline void __dump_vib_regs(struct pm8xxx_vib *vib, char *msg)
 {
-	u8 temp;
-
-	dev_dbg(vib->dev, "%s\n", msg);
-
-	pm8xxx_readb(vib->dev->parent, VIB_DRV, &temp);
-	dev_dbg(vib->dev, "VIB_DRV - %X\n", temp);
 }
 
 static int pm8xxx_vib_read_u8(struct pm8xxx_vib *vib,

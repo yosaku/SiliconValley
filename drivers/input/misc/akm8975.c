@@ -31,16 +31,11 @@
 #define DEBUG 0
 #define MAX_FAILURE_COUNT 3
 
-#define D(x...) printk(KERN_DEBUG "[COMP][AKM8975] " x)
-#define I(x...) printk(KERN_INFO "[COMP][AKM8975] " x)
-#define E(x...) printk(KERN_ERR "[COMP][AKM8975 ERROR] " x)
-#define DIF(x...) {\
-		if (debug_flag) \
-			printk(KERN_DEBUG "[COMP][AKM8975 DEBUG] " x); }
-#define DIF_FATAL_ERR(x...) {\
-		if (debug_flag_fatal_err) \
-			printk(KERN_DEBUG "[COMP][AKM8975 DEBUG FATAL ERR] "\
-					x); }
+#define D(x...) //printk(KERN_DEBUG "[COMP][AKM8975] " x)
+#define I(x...) //printk(KERN_INFO "[COMP][AKM8975] " x)
+#define E(x...) //printk(KERN_ERR "[COMP][AKM8975 ERROR] " x)
+#define DIF(x...) //printk(KERN_DEBUG "[COMP][AKM8975 DEBUG] " x)
+#define DIF_FATAL_ERR(x...)//printk(KERN_DEBUG "[COMP][AKM8975 DEBUG] " x)
 
 #define DEVICE_ACCESSORY_ATTR(_name, _mode, _show, _store) \
 struct device_attribute dev_attr_##_name = __ATTR(_name, _mode, _show, _store)
