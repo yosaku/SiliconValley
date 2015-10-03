@@ -51,12 +51,10 @@
 #include <linux/export.h>
 #include <linux/module.h>
 
-#define D(x...) printk(KERN_DEBUG "[GYRO][R3GD20] " x)
-#define I(x...) printk(KERN_INFO "[GYRO][R3GD20] " x)
-#define E(x...) printk(KERN_ERR "[GYRO][R3GD20 ERROR] " x)
-#define DIF(x...) \
-	if (debug_flag) \
-		printk(KERN_DEBUG "[GYRO][R3GD20 DEBUG] " x)
+#define D(x...) //printk(KERN_DEBUG "[GYRO][R3GD20] " x)
+#define I(x...) //printk(KERN_INFO "[GYRO][R3GD20] " x)
+#define E(x...) //printk(KERN_ERR "[GYRO][R3GD20 ERROR] " x)
+#define DIF(x...) //printk(KERN_DEBUG "[GYRO][R3GD20 DEBUG] " x)
 
 #define FS_MAX			32768
 
