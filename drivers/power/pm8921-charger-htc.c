@@ -1544,8 +1544,8 @@ static int get_prop_batt_capacity(struct pm8921_chg_chip *chip)
 	if (percent_soc == -ENXIO)
 		percent_soc = voltage_based_capacity(chip);
 
-	if (percent_soc <= 10)
-		pr_warn("low battery charge = %d%%\n", percent_soc);
+	/*if (percent_soc <= 10)
+		pr_warn("low battery charge = %d%%\n", percent_soc);*/
 
 	
 	if (test_power_monitor) {
