@@ -1190,6 +1190,7 @@ EXPORT_SYMBOL_GPL(rcu_barrier);
  * Because preemptible RCU does not exist, there is no per-CPU
  * data to initialize.
  */
+static void rcu_preempt_init_percpu_data(int cpu)
 {
 }
 
@@ -1616,6 +1617,7 @@ static int rcu_cpu_kthread(void *arg)
  * rcu_cpu_kthread() will wait until it is fully online, and then do
  * the binding.
  */
+static int rcu_spawn_one_cpu_kthread(int cpu)
 {
 	struct sched_param sp;
 	struct task_struct *t;
