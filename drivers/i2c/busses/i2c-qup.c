@@ -157,6 +157,9 @@ struct i2c_qup_dev {
 	struct msm_i2c_platform_data *pdata;
 	void                         *complete;
 	int                          i2c_gpios[ARRAY_SIZE(i2c_rsrcs)];
+#ifdef CONFIG_MACH_HTC
+	int                          share_uart;
+#endif
 };
 
 static irqreturn_t i2c_qup_interrupt(int irq, void *devid)
@@ -658,6 +661,13 @@ static int i2c_qup_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
 		if (i2c_qup_poll_state(dev, QUP_RESET_STATE)) {
 			dev_err(dev->dev, "QUP Busy:Trying to recover\n");
 			goto out_err;
+
+#ifdef CONFIG_MACH_HTC
+			if (dev->share_uart)
+				writel_relaxed(0x6 << 4, dev->gsbi);
+			else
+#endif
+			writel_relaxed(0x2 << 4, dev->gsbi);
 		}
 	}
 
@@ -1083,6 +1093,9 @@ blsp_core_init:
 
 	dev->one_bit_t = DIV_ROUND_UP(USEC_PER_SEC, pdata->clk_freq);
 	dev->pdata = pdata;
+#ifdef CONFIG_MACH_HTC
+	dev->share_uart = pdata->share_uart_flag;
+#endif
 
 	/*
 	 * If bootloaders leave a pending interrupt on certain GSBI's,
